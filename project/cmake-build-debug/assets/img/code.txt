@@ -1,0 +1,318 @@
+#include "SBDL.h"
+#include <cstdlib>
+#include <ctime>
+using namespace std;
+SDL_Rect backgroundmenurect={0,0,500,500};
+SDL_Rect playrect={100,200,100,100};
+SDL_Rect playagainrect={0,300,100,100};
+SDL_Rect mainrect={400,300,100,100};
+SDL_Rect continuerect={200,300,100,100};
+SDL_Rect settingrect={300,200,100,100};
+SDL_Rect arrowrect ={250,250,20,20};
+SDL_Rect backgroundgamerect={0,0,500,500};
+SDL_Rect blockrectright1[10];
+SDL_Rect follow[10];
+SDL_Rect blockrectright2[10];
+SDL_Rect blockrectleft1[10];
+SDL_Rect blockrectleft2[10];
+SDL_Rect gem_purple[5];
+SDL_Rect gem_yellow={240,-50,10,10};
+SDL_Rect scorerect={220,0,50,30};
+bool game=false;
+bool initialize3;
+bool initialize1;
+bool initialize2;
+int main(int argc, char *argv[])
+{
+
+    const int window_width = 500;
+    const int window_height = 500;
+
+    SBDL::InitEngine("SBDL Test", window_width, window_height);
+    for (int k = 0; k <10; ++k) {
+        blockrectright1[k]={0,-500,50,50};
+        blockrectright2[k]={0,-1000,50,50};
+        blockrectleft1[k]={280,-500,280,50};
+        blockrectleft2[k]={280,-1000,280,50};
+        follow[k]={0,0,20,20};
+    }
+    for (int i = 0; i <5 ; ++i) {
+        gem_purple[i]={240,-200,10,10};
+    }
+
+    int score=0;
+    int velocity =1;
+    bool firstmenu= true;
+    const int FPS = 60; //frame per second
+    const int delay = 1000 / FPS; //delay we need at each frame
+     Texture arrow= SBDL::loadTexture("assets/img/arrow.png");
+    Texture arrow2= SBDL::loadTexture("assets/img/arrow.png");
+     Texture block = SBDL::loadTexture("assets/img/wall_1.png");
+    Texture backgroundgame = SBDL::loadTexture("assets/img/ground_4.png");
+    Texture backgroundmenu = SBDL::loadTexture("assets/img/ground_1.png");
+    Texture setting = SBDL::loadTexture("assets/img/index.png");
+    Texture play = SBDL::loadTexture("assets/img/play.png");
+    Texture continueb= SBDL::loadTexture("assets/img/continue.png");
+    Texture main = SBDL::loadTexture("assets/img/main.png");
+    Texture playagain = SBDL::loadTexture("assets/img/playagain.png");
+    Texture scoretexture,losetexture;
+    Texture gemp = SBDL::loadTexture("assets/img/gem.png");
+    Texture gemy = SBDL::loadTexture("assets/img/gem2.png");
+    Font *font = SBDL::loadFont("assets/fonts/CenturyGothic.ttf", 50);
+    int counterf=0;
+    srand(time(NULL));
+    while (SBDL::isRunning()) {
+        int startTime = SBDL::getTime();
+
+        SBDL::updateEvents();
+        SBDL::clearRenderScreen();
+        //Game logic code
+
+        ////////////////////////////////menu\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\?
+        if(game==false){
+            if(firstmenu==true) {
+                score = 0;
+                SBDL::showTexture(backgroundmenu, backgroundmenurect);
+                SBDL::showTexture(setting, settingrect);
+                SBDL::showTexture(play, playrect);
+                if (SBDL::mouseInRect(playrect)) {
+                    game = true;
+                    arrowrect = {250, 250, 20, 20};
+                }
+                for (int k = 0; k < 10; ++k) {
+                    blockrectright1[k] = {0, -500, 50, 50};
+                    blockrectright2[k] = {0, -1000, 50, 50};
+                    blockrectleft1[k] = {280, -500, 280, 50};
+                    blockrectleft2[k] = {280, -1000, 280, 50};
+
+                }
+                for (int i = 0; i < 5; ++i) {
+                    gem_purple[i] = {240, -200, 10, 10};
+                }
+                initialize1 = false;
+                initialize2 = false;
+                initialize3 = false;
+                counterf=0;
+            }else{
+
+                counterf=0;
+                    SBDL::showTexture(backgroundgame, backgroundgamerect);
+                    losetexture=SBDL::createFontTexture(font,"YOU LOSE!",0,0,0);
+                    scoretexture = SBDL::createFontTexture(font, "Score: " + to_string(score), 0, 0, 0);
+                    SBDL::showTexture(scoretexture,100,0);
+                    SBDL::showTexture(losetexture,100,100);
+                     SBDL::showTexture(playagain,playagainrect);
+                     SBDL::showTexture(main,mainrect);
+                SBDL::showTexture(continueb,continuerect);
+                if (SBDL::mouseInRect(playagainrect)) {
+                    score=0;
+                    game = true;
+                    arrowrect = {250, 250, 20, 20};
+                    for (int k = 0; k < 10; ++k) {
+                        blockrectright1[k] = {0, -500, 50, 50};
+                        blockrectright2[k] = {0, -1000, 50, 50};
+                        blockrectleft1[k] = {280, -500, 280, 50};
+                        blockrectleft2[k] = {280, -1000, 280, 50};
+
+                    }
+                    for (int i = 0; i < 5; ++i) {
+                        gem_purple[i] = {240, -200, 10, 10};
+                    }
+                    initialize1 = false;
+                    initialize2 = false;
+                    initialize3 = false;
+                }
+                if(SBDL::mouseInRect(mainrect)){
+                    firstmenu=true;
+                }
+                }
+            }
+
+
+        ////////////////////gem\\\\\\\\\\\\\\\\\\?
+        if(game==true) {
+            firstmenu=false;
+            SBDL::showTexture(backgroundgame, backgroundgamerect);
+            if (SBDL::keyHeld(SDL_SCANCODE_RIGHT)) {
+                arrowrect.x += 2;
+                SBDL::showTexture(arrow, 45, arrowrect);
+
+                if(counterf>=1) {
+                    follow[0].x = arrowrect.x - 17;
+                    follow[0].y = arrowrect.y + 12;
+                    SBDL::showTexture(arrow, 45, follow[0]);
+                }
+                if(counterf>1) {
+                    for (int i = 1; i < counterf; ++i) {
+                        follow[i].x = follow[i - 1].x - 17;
+                        follow[i].y = follow[i - 1].y + 12;
+                        SBDL::showTexture(arrow, 45, follow[i]);
+                    }
+                }
+
+            } else {
+                arrowrect.x -= 2;
+                SBDL::showTexture(arrow, -45, arrowrect);
+                if(counterf>=1) {
+                    follow[0].x = arrowrect.x + 17;
+                    follow[0].y = arrowrect.y + 12;
+                    SBDL::showTexture(arrow, -45, follow[0]);
+                }
+                if(counterf>1) {
+                    for (int i = 1; i < counterf; ++i) {
+                        follow[i].x = follow[i - 1].x + 17;
+                        follow[i].y = follow[i - 1].y + 12;
+                        SBDL::showTexture(arrow, -45, follow[i]);
+                    }
+                }
+            }
+
+            if (initialize3 == false) {
+                for (int j = 0; j < 5; ++j) {
+                    gem_purple[j].y = (-1 * 10 * (rand() % 20)) - 200;
+                    gem_purple[j].x = 100 + (rand() % 200);
+
+                }
+                initialize3 = true;
+            }
+            if (gem_yellow.y >= 500) {
+                gem_yellow.x = 140 + (rand() % 200);
+                gem_yellow.y = (-1 * 10 * (rand() % 30)) - 200;
+            }
+            for (int k = 0; k < 5; ++k) {
+
+                if (gem_purple[k].y >= 500) {
+                    gem_purple[k].y = -200 + (-1 * (rand() % 500));
+                    gem_purple[k].x = 100 + (rand() % 200);
+                }
+
+            }
+            for (int l = 0; l < 5; ++l) {
+                for (int i = 0; i < 10; ++i) {
+                    if (SBDL::hasIntersectionRect(gem_purple[l], blockrectleft1[i]))
+                        gem_purple[l].x = 500;
+
+                    if
+                            (SBDL::hasIntersectionRect(gem_purple[l], blockrectleft2[i]))
+                        gem_purple[l].x = 500;
+                    if
+                            (SBDL::hasIntersectionRect(gem_purple[l], blockrectright1[i]))
+                        gem_purple[l].x = 500;
+                    if (SBDL::hasIntersectionRect(gem_purple[l], blockrectright2[i]))
+                        gem_purple[l].x = 500;
+                }
+            }
+            for (int i = 0; i < 10; ++i) {
+                if (SBDL::hasIntersectionRect(gem_yellow, blockrectleft1[i]))
+                    gem_yellow.x = 500;
+
+                if
+                        (SBDL::hasIntersectionRect(gem_yellow, blockrectleft2[i]))
+                    gem_yellow.x = 500;
+                if
+                        (SBDL::hasIntersectionRect(gem_yellow, blockrectright1[i]))
+                    gem_yellow.x = 500;
+                if (SBDL::hasIntersectionRect(gem_yellow, blockrectright2[i]))
+                    gem_yellow.x = 500;
+            }
+
+            for (int j = 0; j < 5; ++j) {
+                SBDL::showTexture(gemp, gem_purple[j]);
+                SBDL::showTexture(gemy, gem_yellow);
+                gem_purple[j].y += velocity;
+            }
+            SBDL::showTexture(gemy, gem_yellow);
+            gem_yellow.y += velocity;
+            ///////////////////left and right 1\\\\\\\\\\\\\\\\\\\\\\\\\\\\\?
+            if (blockrectleft1[0].y >= 500) {
+                initialize1 = false;
+                blockrectleft1[0].y = -500;
+                blockrectright1[0].y = -500;
+            }
+            blockrectleft1[0].y += velocity;
+            blockrectright1[0].y += velocity;
+
+            if (initialize1 == false) {
+                for (int i = 0; i < 10; ++i) {
+                    blockrectright1[i].w = (rand() % 160);
+                    blockrectleft1[i].x = 240 + (rand() % 150);
+                }
+                initialize1 = true;
+            }
+            if (initialize1 == true) {
+                for (int i = 0; i < 10; ++i) {
+                    blockrectright1[i].y = blockrectright1[0].y + (50 * i);
+                    SBDL::showTexture(block, blockrectright1[i]);
+                    blockrectleft1[i].y = blockrectleft1[0].y + (50 * i);
+                    SBDL::showTexture(block, blockrectleft1[i]);
+                }
+            }
+            ///////////////////////right and left 2\\\\\\\\\\\\\\\\?
+            srand(time(NULL));
+            if (blockrectleft2[0].y >= 500) {
+                initialize2 = false;
+                blockrectleft2[0].y = -500;
+                blockrectright2[0].y = -500;
+            }
+            blockrectright2[0].y += velocity;
+            blockrectleft2[0].y += velocity;
+
+
+            if (initialize2 == false) {
+                for (int i = 0; i < 10; ++i) {
+                    blockrectright2[i].w = (rand() % 200);
+                    blockrectleft2[i].x = 240 + (rand() % 200);
+
+                }
+                initialize2 = true;
+            }
+            if (initialize2 == true) {
+
+
+                for (int i = 0; i < 10; ++i) {
+                    blockrectright2[i].y = blockrectright2[0].y + (50 * i);
+                    SBDL::showTexture(block, blockrectright2[i]);
+                    blockrectleft2[i].y = blockrectleft2[0].y + (50 * i);
+                    SBDL::showTexture(block, blockrectleft2[i]);
+                }
+
+
+            }
+            /////////////////////////////////arrow\\\\\\\\\\\\\\\\\\\\\\\\\\?
+
+            for (int n = 0; n < 5; ++n) {
+                if (SBDL::hasIntersectionRect(arrowrect, gem_purple[n])) {
+                    gem_purple[n].x = 500;
+                    score += 10;
+                }
+            }
+            if (SBDL::hasIntersectionRect(arrowrect, gem_yellow)) {
+                gem_yellow.x = 500;
+                counterf++;
+                score += 20;
+            }
+            for (int m = 0; m < 10; ++m) {
+                if (SBDL::pointInRect(arrowrect.x + 10, arrowrect.y, blockrectright1[m]))
+                    game = false;
+                else if (SBDL::pointInRect(arrowrect.x + 10, arrowrect.y, blockrectright2[m]))
+                    game = false;
+                else if (SBDL::pointInRect(arrowrect.x + 10, arrowrect.y, blockrectleft1[m]))
+                    game = false;
+                else if (SBDL::pointInRect(arrowrect.x + 10, arrowrect.y, blockrectleft2[m]))
+                    game = false;
+
+            }
+
+            //////////////////////////////////////////////////score\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\?
+
+            scoretexture = SBDL::createFontTexture(font, "Score: " + to_string(score), 0, 0, 0);
+            SBDL::showTexture(scoretexture,220,0);
+        }
+        SBDL::updateRenderScreen();
+
+        int elapsedTime = SBDL::getTime() - startTime;
+        if (elapsedTime < delay)
+            SBDL::delay(delay - elapsedTime);
+
+    }
+}
